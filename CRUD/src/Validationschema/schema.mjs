@@ -1,7 +1,7 @@
 export const createSchema = {
     username: {
         notEmpty : {
-            errorMessage: "Username can not be empty"
+            errorMessage: "Username cann't be empty"
         },
         isLength: {
             options : { min : 5, max: 12},
@@ -15,7 +15,7 @@ export const createSchema = {
     },
     displayName: {
         notEmpty : {
-            errorMessage: "displayName can not be empty"
+            errorMessage: "displayName cann't be empty"
         },
         isString: {
             errorMessage: "DisplayName must be string"

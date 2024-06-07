@@ -1,7 +1,7 @@
-import { userData } from "../database/userData.mjs"
+import { userData } from "../assert/database/userData.mjs"
 
 const resolveByIndex=(req,res,next)=>{
-    const {body,params:{id}}=req
+    const {params:{id}}=req
     const parseId=parseInt(id)
 
     if(isNaN(parseId))

@@ -1,19 +1,22 @@
-import { userData } from "../assert/database/userData.mjs"
+// 
+import { PrismaClient } from "@prisma/client"
 
-const resolveByIndex=(req,res,next)=>{
+const prisma=new PrismaClient();
+
+const resolveByIndex=async (req,res,next)=>{
     const {params:{id}}=req
     const parseId=parseInt(id)
 
     if(isNaN(parseId))
         return res.sendStatus(400)
-
-    const findIndex=userData.findIndex((user)=>{
-        return user.id===parseId
+    
+    const findUser=await prisma.user.findUnique({
+        where:{id:parseId}
     })
 
-    if(findIndex===-1)
+    if(!findUser)
         return res.sendStatus(404)
-    req.findIndex=findIndex
+    req.findUser=findUser
     req.parseId=parseId
     next()
 }

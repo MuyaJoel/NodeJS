@@ -1,27 +1,46 @@
-import { userData } from "../assert/database/userData.mjs"
+import {PrismaClient} from '@prisma/client'
 import { query,validationResult,matchedData,body,checkSchema } from "express-validator"
+
+const prisma=new PrismaClient()
 
 
 //getting all users
-export const getUsers=(req,res)=>{
-    res.status(200).json({
-        status:"success",
-        data:{userData}
-    })
+export const getUsers=async (req,res)=>{
+   try{
+    const users=await prisma.userData.findMany()
+    console.log(users)
+    return res.json(users)
+   }catch(error){
+    res.status(500).json({
+        status: "error",
+        message: error.message
+    });
+
+   }
 }
 
 //getting a specific user
-export const getSpecificUser=(req,res)=>{
-    const {findIndex}=req
-    const findUser=userData[findIndex]
-    res.status(200).json({
-        status:"Success",
-        data:{findUser}
-    })
+export const getSpecificUser=async (req,res)=>{
+    const {parseId,findUser}=req
+    // const findUser=await prisma.userData.findUnique({
+        // where:{id:parseId}
+    // })
+    if(findUser){
+        res.cookie('findUser', JSON.stringify(findUser)), {httpOnly:true}
+        res.status(200).json({
+            status:"Success",
+            data:{findUser}
+        })
+    }else{
+        res.status(400).json({
+            message: 'user not found'
+        })
+    }
+    
 }
 
 //create a user.
-export const createUser=(req,res)=>{
+export const createUser=async (req,res)=>{
     const errors = validationResult(req)
 
     if(!errors.isEmpty()) {
@@ -32,35 +51,41 @@ export const createUser=(req,res)=>{
     }
 
     const data = matchedData(req)
-    const newUser={id:userData[userData.length -1].id+1, ...data}
-
-    userData.push(newUser)
+    const user=await prisma.user.create({
+        data:{data}
+    })
     res.status(200).json({
         status:"success",
-        data:{userData}
+        data:{user}
     })
 }
 //update the all user object
-export const updateUserObj=(req,res)=>{
-    const {findIndex,parseId}=req
+export const updateUserObj=async(req,res)=>{
+    const {parseId}=req
     const data = matchedData(req)
-    userData[findIndex]={id:parseId, ...data}
-    res.sendStatus(200)
+    const updateUser=await prisma.userData.update({
+        where:{id:parseId},
+        data:{...data}
+    })
+    res.sendStatus(200).send(updateUser)
 }
 
 
 //update a user
 export const updateUser=(req,res)=>{
-    const {findIndex}=req
+    const {parseId}=req
     const data = matchedData(req)
-    userData[findIndex]={...userData[findIndex],...data}
+    // userData[findIndex]={...userData[findIndex],...data}
     console.log('User Updated')
-    return res.status(200).send(userData[findIndex])
+    // return res.status(200).send(userData[findIndex])
 }
 
 //delete a user
-export const deleteUser=(req,res)=>{
-    const {findIndex}=req
-    userData.splice(findIndex,1)
+export const deleteUser=async (req,res)=>{
+    const {parseId}=req
+    // userData.splice(findIndex,1)
+    await prisma.userData.delete({
+        where:{id:parseId}
+    })
     res.sendStatus(200)
 }

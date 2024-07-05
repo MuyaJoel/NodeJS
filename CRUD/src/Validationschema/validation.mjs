@@ -1,24 +1,25 @@
-// 
-import { PrismaClient } from "@prisma/client"
+//
+import { PrismaClient } from "@prisma/client";
 
-const prisma=new PrismaClient();
+const prisma = new PrismaClient();
 
-const resolveByIndex=async (req,res,next)=>{
-    const {params:{id}}=req
-    const parseId=parseInt(id)
+const resolveByIndex = async (req, res, next) => {
+  const {
+    params: { id },
+  } = req;
+  const parseId = parseInt(id);
 
-    if(isNaN(parseId))
-        return res.sendStatus(400)
-    
-    const findUser=await prisma.user.findUnique({
-        where:{id:parseId}
-    })
+  if (isNaN(parseId)) return res.sendStatus(400);
 
-    if(!findUser)
-        return res.sendStatus(404)
-    req.findUser=findUser
-    req.parseId=parseId
-    next()
-}
+  const findUser = await prisma.userData.findUnique({
+    where: { id: parseId },
+  });
 
-export default resolveByIndex
+  if (!findUser) return res.sendStatus(404);
+
+  req.findUser = findUser;
+  req.parseId = parseId;
+  next();
+};
+
+export default resolveByIndex;
